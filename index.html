@@ -387,12 +387,10 @@
 </head>
 
 <body>
-  <!-- Animated particles background -->
   <div class="particles" id="particles"></div>
 
   <div id="messageBox" class="message-box"></div>
 
-  <!-- Map Modal -->
   <div id="mapModal" class="map-modal">
     <div class="map-content">
       <button class="close-map" onclick="closeMap()">Close Map</button>
@@ -408,7 +406,6 @@
 
     <h1 class="header-title">Another Realm</h1>
 
-    <!-- Dynamic Image Container -->
     <div class="story-image-container">
       <img id="storyImage" class="story-image" src="" alt="Story Scene">
     </div>
@@ -439,62 +436,142 @@
     let currentStage = 'start';
     let inventory = [];
 
-    // Image mapping for story stages
+    // --- UPDATED IMAGE MAPPING OBJECT ---
+    // This object maps a story stage to a specific image file.
+    // I have used placeholders for routes where you don't have images yet.
     const stageImageMap = {
-      // Forest scenes
-      'awakeningForest': 'awaken-on-forest.png',
-      'examineForest': 'awaken-on-forest.png',
-      'examineForestPostFruit': 'awaken-on-forest.png',
-      'takeFruit': 'awaken-on-forest.png',
-      'eatFruit': 'awaken-on-forest.png',
-      'shoutForHelp': 'awaken-on-forest.png',
-      'investigateRustling': 'awaken-on-forest.png',
-      'observeRustling': 'awaken-on-forest.png',
-      'takeToken': 'awaken-on-forest.png',
-      'seekCivilization': 'awaken-on-forest.png',
+      // Scene Group 1: The Transition
+      'start': '01-portal-in-alley.png',
+      'ignoreLight': '01-portal-in-alley.png',
+      'intoTheLight': '01-portal-in-alley.png',
 
-      // Shrine scenes
-      'followPath': 'ancient-shrine.png',
-      'touchShrine': 'ancient-shrine.png',
-      'examineRunes': 'ancient-shrine.png',
-      'useTokenOnRunes': 'ancient-shrine.png',
-      'decipherFail': 'ancient-shrine.png',
-      'ponderVision': 'ancient-shrine.png',
-      'mountainGoal': 'ancient-shrine.png',
+      // Scene Group 2: The Luminous Forest
+      'awakeningForest': '02a-forest-awakening.png',
+      'seekCivilizationNorth': '02a-forest-awakening.png',
+      'examineForest': '02b-forest-glowing-plants.png',
+      'examineForestPostFruit': '02b-forest-glowing-plants.png',
+      'takeFruit': '02c-shimmering-fruit-closeup.png',
+      'eatFruit': '02c-shimmering-fruit-closeup.png', // Note: This stage is commented out in your storyTree
+      'shoutForHelp': '02d-forest-creature-peeking.png',
+      'investigateRustling': '02d-forest-creature-peeking.png',
+      'observeRustling': '02d-forest-creature-peeking.png',
+      'takeToken': '02e-carved-token-in-hand.png',
 
-      // Village scenes
-      'northPath': 'oakhaven-village.png',
-      'approachVillage': 'oakhaven-village.png',
-      'observeVillage': 'oakhaven-village.png',
-      'villageBypassAttempt': 'oakhaven-village.png',
-      'villageGreetingLost': 'oakhaven-village.png',
-      'villageObserveSilent': 'oakhaven-village.png',
-      'explainOtherWorld': 'oakhaven-village.png',
-      'claimAmnesia': 'oakhaven-village.png',
-      'askAboutThisWorld': 'oakhaven-village.png',
-      'askReturnHome': 'oakhaven-village.png',
-      'villageHospitality': 'oakhaven-village.png',
-      'leaveVillagePolitely': 'oakhaven-village.png',
-      'askSkyShrines': 'oakhaven-village.png',
-      'askDangers': 'oakhaven-village.png',
-      'askConvergingPaths': 'oakhaven-village.png',
-      'shrineAsReturn': 'oakhaven-village.png',
-      'vowSeekKnowledge': 'oakhaven-village.png',
-      'pathToVillage': 'oakhaven-village.png',
+      // Scene Group 3: The Forest Shrine
+      'followPath': '03a-path-to-shrine.png',
+      'touchShrineVision': '03b-ancient-forest-shrine.png',
+      'examineRunesShrine': '03b-ancient-forest-shrine.png',
+      'decipherFailShrine': '03b-ancient-forest-shrine.png',
+      'useTokenOnRunes': '03c-shrine-vision-magic.png',
+      'ponderVisionSunken': '03c-shrine-vision-magic.png',
 
-      // Tower scenes
-      'ruinedTowerApproach': 'ruined-tower.png',
-      'enterTower': 'ruined-tower.png',
-      'circleTower': 'ruined-tower.png',
-      'openChest': 'ruined-tower.png',
-      'examineLocket': 'ruined-tower.png',
-      'examineJournal': 'ruined-tower.png',
-      'examinePedestal': 'ruined-tower.png',
-      'placeLocket': 'ruined-tower.png',
-      'askSunkenCity': 'ruined-tower.png',
-      'listenWhispers': 'ruined-tower.png',
+      // Scene Group 4: The Eastern Path
+      'eastPathRandomEncounter': '04a-grumpy-beast-encounter.png',
+      'sneakBadger': '04a-grumpy-beast-encounter.png',
+      'offerFruitToBadger': '04b-offering-fruit-to-beast.png',
+      'backAwayBadgerFall': '04a-grumpy-beast-encounter.png', // The moment before the fall
+      'eastPathClearedRiver': '04c-river-and-bridge-view.png',
+      'riverBridge': '04d-crossing-rickety-bridge.png',
+      'crossBridge': '04d-crossing-rickety-bridge.png',
+      'crossBridgeBacktrackFail': '04e-falling-in-river.png',
+      'findAnotherWayRiver': '04f-log-crossing.png',
+      'logCrossing': '04f-log-crossing.png',
+      'crossBridgeSuccess': '06a-rolling-hills-vista.png', // Transition to hills view
+      'exploreHills': '06a-rolling-hills-vista.png',
 
-      // Default to map for other scenes or no image
+      // Scene Group 5: Oakhaven Village (Route 1)
+      'route1_approachOakhaven': '05a-view-of-oakhaven.png',
+      'route1_runFromVillage': '05a-view-of-oakhaven.png',
+      'route1_villageGreetingLost': '05b-oakhaven-entrance.png',
+      'route1_villageObserveSilent': '05b-oakhaven-entrance.png',
+      'route1_explainOtherWorld': '05c-conversation-with-elara.png',
+      'route1_claimAmnesia': '05c-conversation-with-elara.png',
+      'route1_learnAboutOakhaven': '05c-conversation-with-elara.png',
+      'route1_settleInOakhaven': '05d-oakhaven-hospitality.png',
+      'route1_oakhavenChallenge1': '05d-oakhaven-hospitality.png',
+      'route1_investigateWell': '05d-oakhaven-hospitality.png', // Placeholder
+      'route1_consultElaraBlight': '05c-conversation-with-elara.png',
+      'route1_bringSampleToElara': '05c-conversation-with-elara.png',
+      'route1_journeySunkenGlade': '02a-forest-awakening.png', // Placeholder (using forest image)
+      'route1_purifyWell': '05d-oakhaven-hospitality.png', // Placeholder
+      'route1_activatedSkyShrine': '03c-shrine-vision-magic.png', // Placeholder (using shrine image)
+      'route1_journeySkyShrineOakhaven': '03c-shrine-vision-magic.png',
+      'route1_pathForward': '05e-leaving-oakhaven.png', // Placeholder for path forward
+
+      // Scene Group: Temple (Route 2) - Using Placeholders
+      'route2_templePathReveal': '03c-shrine-vision-magic.png',
+      'route2_arriveAtTemple': '03b-ancient-forest-shrine.png', // Placeholder
+      'route2_templeDiscovery': '03b-ancient-forest-shrine.png', // Placeholder
+      'route2_encounterKael': '03b-ancient-forest-shrine.png', // Placeholder
+      'route2_explainToKael': '03b-ancient-forest-shrine.png', // Placeholder
+      'route2_sneakPastKael': '03b-ancient-forest-shrine.png', // Placeholder
+      'route2_fightKael': '03b-ancient-forest-shrine.png', // Placeholder
+      'route2_failSilenceKael': '03b-ancient-forest-shrine.png', // Placeholder
+      'route2_learnFromKael': '03b-ancient-forest-shrine.png', // Placeholder
+      'route2_templeChallenge1': '03b-ancient-forest-shrine.png', // Placeholder
+      'route2_realignPillar': '03c-shrine-vision-magic.png', // Placeholder
+      'route2_findAlternatePassageTemple': '03b-ancient-forest-shrine.png', // Placeholder
+      'route2_templeNewPath': '03c-shrine-vision-magic.png', // Placeholder
+      'route2_pathForward': '08a-path-to-the-unknown.png', // Placeholder
+
+      // Scene Group: Coastal/Tower (Route 3)
+      'route3_ruinedTowerApproach': '06b-approaching-ruined-tower.png',
+      'route3_enterTower': '06c-tower-interior-pedestal.png',
+      'route3_circleTower': '06b-approaching-ruined-tower.png', // Shows exterior
+      'route3_openChest': '06d-opening-treasure-chest.png',
+      'route3_examineLocket': '06d-opening-treasure-chest.png',
+      'route3_examineJournal': '06d-opening-treasure-chest.png',
+      'route3_examinePedestal': '06c-tower-interior-pedestal.png',
+      'route3_listenWhispers': '06c-tower-interior-pedestal.png',
+      'route3_placeLocket': '06e-locket-activating-pedestal.png',
+      'route3_askSunkenCity': '06e-locket-activating-pedestal.png',
+      'route3_goalCoast': '06b-approaching-ruined-tower.png', // Leaving the tower
+      'route3_headToCoast': '07a-fantasy-coastline.png',
+      'route3_walkBeach': '07a-fantasy-coastline.png',
+      'route3_searchCove': '07b-hidden-cove-entrance.png',
+      'route3_enterHiddenCove': '07c-sealed-stone-door.png',
+      'route3_examineCoveDoor': '07c-sealed-stone-door.png',
+      'route3_forceCoveDoor': '07c-sealed-stone-door.png',
+      'route3_useLocketOnCoveDoor': '07d-door-opening-magic.png',
+      'route3_enterSunkenCityPassage': '08a-path-to-the-unknown.png',
+      'route3_encounterLyra': '08a-path-to-the-unknown.png', // Placeholder
+      'route3_sunkenChallenge1': '08a-path-to-the-unknown.png', // Placeholder
+      'route3_realignConduits': '08a-path-to-the-unknown.png', // Placeholder
+      'route3_findAlternateRouteSunken': '08a-path-to-the-unknown.png', // Placeholder
+      'route3_pathForward': '08a-path-to-the-unknown.png', // Placeholder
+
+      // Scene Group: Nomads (Route 4) - Using Placeholders
+      'route4_hillsContinue': '06a-rolling-hills-vista.png',
+      'route4_searchRoadHills': '06a-rolling-hills-vista.png',
+      'route4_climbHillView': '06a-rolling-hills-vista.png',
+      'route4_followTrackSouth': '06a-rolling-hills-vista.png',
+      'route4_headTowardsNomads': '06a-rolling-hills-vista.png',
+      'route4_approachNomadCamp': '06a-rolling-hills-vista.png',
+      'route4_explainToNomads': '06a-rolling-hills-vista.png',
+      'route4_ambiguousNomad': '06a-rolling-hills-vista.png',
+      'route4_silentNomad': '06a-rolling-hills-vista.png',
+      'route4_settleWithNomads': '06a-rolling-hills-vista.png',
+      'route4_nomadChallenge1': '06a-rolling-hills-vista.png',
+      'route4_trackStarGlow': '06a-rolling-hills-vista.png',
+      'route4_consultElderNomad': '06a-rolling-hills-vista.png',
+      'route4_returnWithMoss': '06a-rolling-hills-vista.png',
+      'route4_pathForward': '06a-rolling-hills-vista.png',
+
+      // Scene Group: Caves (Route 5) - Using Placeholders
+      'route5_fallIntoCrevice': '08a-path-to-the-unknown.png',
+      'route5_awakeningCaves': '08a-path-to-the-unknown.png',
+      'route5_exploreCaves': '08a-path-to-the-unknown.png',
+      'route5_explainToGlimmerfolk': '08a-path-to-the-unknown.png',
+      'route5_grabRinFail': '08a-path-to-the-unknown.png',
+      'route5_silentGlimmerfolk': '08a-path-to-the-unknown.png',
+      'route5_learnAboutCaves': '08a-path-to-the-unknown.png',
+      'route5_caveChallenge1': '08a-path-to-the-unknown.png',
+      'route5_severParasiticRoot': '08a-path-to-the-unknown.png',
+      'route5_boostMossEnergy': '08a-path-to-the-unknown.png',
+      'route5_crystalChamber': '08a-path-to-the-unknown.png',
+      'route5_pathForward': '08a-path-to-the-unknown.png',
+
+      // Default Image
       'default': 'map.png'
     };
 
@@ -521,7 +598,7 @@
       'awakeningForest': {
         text: "You awaken with a gasp, lying on a bed of soft moss. Towering, luminous trees surround you, their leaves glowing with an ethereal light. Strange, melodic bird calls echo in the distance. This is not your world. What do you do?",
         choices: [
-          { text: "Look for signs of civilization", nextStage: 'seekCivilization' },
+          { text: "Look for signs of civilization (North)", nextStage: 'seekCivilizationNorth' },
           { text: "Examine your immediate surroundings", nextStage: 'examineForest' },
           { text: "Shout for help", nextStage: 'shoutForHelp' }
         ]
@@ -531,6 +608,7 @@
         choices: [
           { text: "Take the shimmering fruit", nextStage: 'takeFruit', condition: () => !inventory.includes('Shimmering Fruit') },
           { text: "Follow the hidden path", nextStage: 'followPath' },
+          { text: "Head East into the forest", nextStage: 'eastPathRandomEncounter' }, // Added direct east path from here
           { text: "Go back to the clearing", nextStage: 'awakeningForest' }
         ]
       },
@@ -545,27 +623,20 @@
         },
         choices: [
           { text: "Continue examining surroundings", nextStage: 'examineForestPostFruit' },
-          { text: "Eat the fruit now", nextStage: 'eatFruit' }
+          // Removed the 'Eat the fruit now' choice to simplify early branching for routes 3, 4, 5
+          // { text: "Eat the fruit now", nextStage: 'eatFruit' }
         ]
       },
       'examineForestPostFruit': {
         text: "You continue to scan the area. The plants are unlike anything you've seen. The small, hidden path winds deeper into the woods.",
         choices: [
           { text: "Follow the hidden path", nextStage: 'followPath' },
+          { text: "Head East into the forest", nextStage: 'eastPathRandomEncounter' }, // Added direct east path from here
           { text: "Go back to the clearing", nextStage: 'awakeningForest' }
         ]
       },
-      'eatFruit': {
-        text: "You take a bite of the Shimmering Fruit. A wave of warmth and clarity washes over you. You feel slightly more attuned to this strange world, your senses sharpened.",
-        onEnter: () => {
-          inventory = inventory.filter(item => item !== 'Shimmering Fruit');
-          showMessage("You feel invigorated!");
-          updateInventoryDisplay();
-        },
-        choices: [
-          { text: "Continue exploring", nextStage: 'examineForestPostFruit' }
-        ]
-      },
+      // Removing 'eatFruit' node as per above simplification
+      // 'eatFruit': { ... }
       'shoutForHelp': {
         text: "You cup your hands and yell, 'Hello? Is anyone out there?!' Your voice echoes, but only the strange bird calls answer. A moment later, you hear a rustling in the undergrowth nearby.",
         choices: [
@@ -574,7 +645,7 @@
         ]
       },
       'investigateRustling': {
-        text: "You cautiously approach the source of the sound. A small, furry creature with large, curious eyes peeks out from behind a bush. It tilts its head, then scurries away, dropping a small, intricately carved wooden token.",
+        text: "You cautiously approach the source of the sound. A small, furry creature with large, curious eyes peeps out from behind a bush. It tilts its head, then scurries away, dropping a small, intricately carved wooden token.",
         choices: [
           { text: "Pick up the token", nextStage: 'takeToken' },
           { text: "Leave it and continue", nextStage: 'awakeningForest' }
@@ -594,87 +665,67 @@
         ]
       },
       'observeRustling': {
-        text: "You remain still, watching. A small, furry creature with large, curious eyes emerges, glances in your direction, then darts off into the forest. It seems harmless.",
+        text: "You remain still, watching. A small, furry creature with large, curious eyes emerges, glances in your direction, then darts off into the forest. It seems harmless. You can now explore freely, or head east.",
         choices: [
-          { text: "Continue exploring", nextStage: 'awakeningForest' }
+          { text: "Head East into the forest", nextStage: 'eastPathRandomEncounter' }, // Leads to Route 3, 4, 5 potentially
+          { text: "Explore the area", nextStage: 'awakeningForest' }
         ]
       },
-      'seekCivilization': {
-        text: "You decide to find others. Which direction seems most promising? The trees seem slightly thinner to the north, where you can see a faint glow over the canopy.",
+      'seekCivilizationNorth': { // Leads towards Route 1
+        text: "You decide to find others. Which direction seems most promising? The trees seem slightly thinner to the north, where you can see a faint glow over the canopy. This looks like the path to Oakhaven.",
         choices: [
-          { text: "Head north towards the glow", nextStage: 'northPath' },
-          { text: "Try a different direction (east)", nextStage: 'eastPathRandomEncounter' }
+          { text: "Head north towards the glow (Oakhaven)", nextStage: 'route1_approachOakhaven' },
+          { text: "Try a different direction (east)", nextStage: 'eastPathRandomEncounter' } // Leads to Route 3, 4, 5 potentially
         ]
       },
-      'followPath': {
-        text: "The hidden path is narrow and winding. After a few minutes, it opens into a larger clearing. In the center stands a weathered stone shrine, covered in glowing runes. A faint humming emanates from it.",
+      'followPath': { // Leads towards Route 2
+        text: "The hidden path is narrow and winding, leading you deeper into the ancient Lumina Forest. After a few minutes, it opens into a larger clearing. In the center stands a weathered stone shrine, covered in glowing runes. A faint humming emanates from it.",
         choices: [
-          { text: "Touch the shrine", nextStage: 'touchShrine' },
-          { text: "Examine the runes closely", nextStage: 'examineRunes' },
+          { text: "Touch the shrine (Vision)", nextStage: 'touchShrineVision' },
+          { text: "Examine the runes closely", nextStage: 'examineRunesShrine' },
           { text: "Leave the shrine", nextStage: 'awakeningForest' }
         ]
       },
-      'touchShrine': {
-        text: "As your fingers brush the cold stone, the runes flare with intense light. A vision flashes through your mind: a city of silver spires, floating islands, and beings with feathered wings. The vision fades, leaving you with a sense of awe and a faint headache.",
+      'touchShrineVision': {
+        text: "As your fingers brush the cold stone, the runes flare with intense light. A vision flashes through your mind: an awe-inspiring underwater city, its grand structures illuminated by bioluminescent algae, and then a clear image of a hidden cove along a dramatic, rocky coastline, a small, almost invisible opening leading into the depths. The vision fades, leaving you with a sense of the ocean's mystery.",
         choices: [
-          { text: "Try to understand the vision", nextStage: 'ponderVision' },
+          { text: "Try to understand the vision", nextStage: 'ponderVisionSunken' },
+          { text: "Examine the runes instead", nextStage: 'examineRunesShrine' },
           { text: "Leave the shrine, shaken", nextStage: 'awakeningForest' }
         ]
       },
-      'examineRunes': {
-        text: "The runes are intricate, unlike any language you know. As you focus, some seem to shift and rearrange. If you had the 'Carved Token', perhaps you could decipher them?",
+      'examineRunesShrine': {
+        text: "The runes are intricate, unlike any language you know. As you focus, some seem to shift and rearrange. They hum faintly. If you had the 'Carved Token', perhaps you could decipher them?",
         choices: [
-          { text: "Use Carved Token", nextStage: 'useTokenOnRunes', condition: () => inventory.includes('Carved Token') },
-          { text: "Try to decipher without token", nextStage: 'decipherFail' },
+          { text: "Use Carved Token to decipher", nextStage: 'route2_templePathReveal', condition: () => inventory.includes('Carved Token') }, // Leads to Route 2 start
+          { text: "Try to decipher without token", nextStage: 'decipherFailShrine' },
           { text: "Leave the shrine", nextStage: 'awakeningForest' }
         ]
       },
-      'useTokenOnRunes': {
-        text: "You hold the Carved Token towards the runes. It resonates with the shrine's hum, and the runes glow brighter. A single, clear image forms in your mind: a map, showing a path leading from this forest to a nearby village.",
-        onEnter: () => {
-          showMessage("The token reveals a path!");
-        },
-        choices: [
-          { text: "Follow the mental map to the village", nextStage: 'pathToVillage' },
-          { text: "Ignore it and return to the forest", nextStage: 'awakeningForest' }
-        ]
-      },
-      'decipherFail': {
+      'decipherFailShrine': {
         text: "You stare at the runes, but their meaning eludes you. They remain beautiful but incomprehensible.",
         choices: [
-          { text: "Touch the shrine instead", nextStage: 'touchShrine' },
+          { text: "Touch the shrine instead (Vision)", nextStage: 'touchShrineVision' },
           { text: "Leave the shrine", nextStage: 'awakeningForest' }
         ]
       },
-      'ponderVision': {
-        text: "The vision was overwhelming. A city in the sky? Winged beings? This world is far stranger than you imagined. You feel a pull, a faint sense of direction from the vision, pointing towards the distant mountains.",
+      'ponderVisionSunken': {
+        text: "The vision of the sunken city near the coast feels strangely significant. It suggests a path to understanding might lie beneath the waves. You feel a pull towards the south.",
         choices: [
-          { text: "Decide to head towards the mountains eventually", nextStage: 'mountainGoal' },
-          { text: "Dismiss it as a hallucination", nextStage: 'awakeningForest' }
+          { text: "Return to the main forest area, keeping the coast in mind", nextStage: 'awakeningForest' }
         ]
       },
-      'mountainGoal': {
-        text: "The vision of the sky city near the mountains feels like a significant clue. Though the path is unclear, you resolve to head towards those distant peaks when you can. For now, survival and understanding this immediate area are key.",
-        choices: [
-          { text: "Return to the main forest area", nextStage: 'awakeningForest' }
-        ]
-      },
-      'northPath': {
-        text: "You head north. The glow becomes brighter, and soon you break through the trees to see a small, peaceful-looking village nestled in a valley. Smoke rises from chimneys. This could be a safe haven.",
-        choices: [
-          { text: "Approach the village cautiously", nextStage: 'approachVillage' },
-          { text: "Observe from a distance", nextStage: 'observeVillage' }
-        ]
-      },
-      'eastPathRandomEncounter': {
+
+      // --- Early East Path - Potential Start for Routes 3, 4, 5 ---
+      'eastPathRandomEncounter': { // Accessed from awakeningForest, examineForest, examineForestPostFruit, observeRustling
         text: "You venture east. The forest grows denser. Suddenly, you stumble upon a grumpy-looking badger-like creature, twice your size, blocking your path. It snorts, eyeing you warily.",
         choices: [
           { text: "Try to sneak past", nextStage: 'sneakBadger' },
           { text: "Offer it the Shimmering Fruit", nextStage: 'offerFruitToBadger', condition: () => inventory.includes('Shimmering Fruit') },
-          { text: "Slowly back away", nextStage: 'backAwayBadger' }
+          { text: "Slowly back away", nextStage: 'backAwayBadgerFall' } // This path leads to the fall for Route 5
         ]
       },
-      'offerFruitToBadger': {
+      'offerFruitToBadger': { // Required for smoother progression towards Routes 3 & 4
         text: "You cautiously hold out the Shimmering Fruit. The badger-creature sniffs, its eyes widening slightly. It snatches the fruit and munches on it happily, then lumbers off the path, leaving it clear.",
         onEnter: () => {
           inventory = inventory.filter(item => item !== 'Shimmering Fruit');
@@ -682,169 +733,33 @@
           updateInventoryDisplay();
         },
         choices: [
-          { text: "Continue east", nextStage: 'eastPathCleared' }
+          { text: "Continue east towards the river", nextStage: 'eastPathClearedRiver' } // Leads to river/bridge for Routes 3 & 4
         ]
       },
       'sneakBadger': {
         text: "You try to creep by, but the creature's sharp ears twitch. It lets out a loud GROWL, and you wisely decide to retreat quickly.",
         choices: [
-          { text: "Go back and head north instead", nextStage: 'northPath' },
-          { text: "Try another direction (west)", nextStage: 'westPathPlaceholder' }
+          { text: "Go back and head north instead (Oakhaven)", nextStage: 'seekCivilizationNorth' }, // Back to Route 1 potential
+          { text: "Return to the clearing", nextStage: 'awakeningForest' }
         ]
       },
-      'backAwayBadger': {
-        text: "You slowly retreat. The creature watches you, then loses interest and ambles away. The path east is clear, but you feel a bit shaken.",
+      'backAwayBadgerFall': { // Leads to Route 5
+        text: "You slowly retreat. The creature watches you, then loses interest and ambles away. You continue cautiously eastward, feeling slightly unnerved. Suddenly, the ground beneath you gives way with a sickening lurch!",
         choices: [
-          { text: "Continue east, cautiously", nextStage: 'eastPathCleared' },
-          { text: "Go back and head north instead", nextStage: 'northPath' }
+          { text: "Fall into the darkness...", nextStage: 'route5_fallIntoCrevice' } // Direct to Route 5 start
         ]
       },
-      'eastPathCleared': {
+      'eastPathClearedRiver': { // Leads to river/bridge for Routes 3 & 4
         text: "The path eastward eventually leads to a winding river. The water is crystal clear. You see a rickety wooden bridge further downstream.",
         choices: [
-          { text: "Follow river to the bridge", nextStage: 'riverBridge' },
-          { text: "Rest by the river", nextStage: 'restRiver' }
+          { text: "Follow river to the bridge", nextStage: 'riverBridge' }
         ]
       },
-      'westPathPlaceholder': {
-        text: "You head west. The forest is quiet here. (This path is under construction in this story demo!)",
-        choices: [
-          { text: "Go back", nextStage: 'awakeningForest' }
-        ]
-      },
-      'approachVillage': {
-        text: "As you get closer, you see villagers. They look human, but are dressed in simple, rustic clothing. Some notice you and stop their work, looking curious but not hostile. An elderly woman with kind eyes steps forward.",
-        choices: [
-          { text: "'Hello? I seem to be lost.'", nextStage: 'villageGreetingLost' },
-          { text: "Stay silent and observe them", nextStage: 'villageObserveSilent' }
-        ]
-      },
-      'observeVillage': {
-        text: "You watch from the treeline. The villagers go about their tasks – farming, mending tools. They seem peaceful. Children are playing a game with glowing pebbles. It seems safe enough.",
-        choices: [
-          { text: "Reveal yourself and approach", nextStage: 'approachVillage' },
-          { text: "Try to find another way around", nextStage: 'villageBypassAttempt' }
-        ]
-      },
-      'villageBypassAttempt': {
-        text: "You decide to skirt around the village. The terrain becomes rough, and you realize bypassing it entirely will be difficult without getting lost.",
-        choices: [
-          { text: "Give up and approach the village", nextStage: 'approachVillage' },
-          { text: "Continue trying to bypass", nextStage: 'awakeningForest' }
-        ]
-      },
-      'villageGreetingLost': {
-        text: "The old woman smiles. 'Lost, are you, child? You don't look to be from around here. Come, tell us your story. You look like you've traveled far.' The villagers seem welcoming.",
-        choices: [
-          { text: "Explain you're from another world (Risky)", nextStage: 'explainOtherWorld' },
-          { text: "Say you have amnesia", nextStage: 'claimAmnesia' }
-        ]
-      },
-      'villageObserveSilent': {
-        text: "You remain silent. The villagers exchange uneasy glances. The elderly woman's smile fades slightly. 'Are you alright, dear? Can you speak?'",
-        choices: [
-          { text: "'I... I'm okay. Just startled.'", nextStage: 'villageGreetingLost' },
-          { text: "Run away", nextStage: 'runFromVillage' }
-        ]
-      },
-      'runFromVillage': {
-        text: "Your sudden flight spooks the villagers. Some shout in alarm. You plunge back into the forest, your heart pounding. That probably wasn't the best first impression.",
-        choices: [
-          { text: "Try to calm down and re-evaluate", nextStage: 'awakeningForest' }
-        ]
-      },
-      'explainOtherWorld': {
-        text: "You try to explain about your world, cars, phones... The villagers listen, a mixture of confusion and awe on their faces. The elder nods slowly. 'A \"world-walker\"... It has been long since one graced our lands. You will have many questions. And we, perhaps, have some for you.'",
-        choices: [
-          { text: "Ask about this world", nextStage: 'askAboutThisWorld' },
-          { text: "Ask how to get back", nextStage: 'askReturnHome' }
-        ]
-      },
-      'claimAmnesia': {
-        text: "You tell them you can't remember how you got here or who you are. The elder looks at you with sympathy. 'Poor child. Rest here. We will help as we can. Perhaps your memory will return.'",
-        choices: [
-          { text: "Accept their hospitality", nextStage: 'villageHospitality' },
-          { text: "Politely decline and leave", nextStage: 'leaveVillagePolitely' }
-        ]
-      },
-      'askAboutThisWorld': {
-        text: "The elder, Elara, tells you of Aerthos, a land of magic, ancient beasts, and scattered kingdoms. She speaks of the Lumina Forest, where you awoke, and the Sky Shrines, remnants of a forgotten age. The village of Oakhaven is a peaceful place, but dangers lurk beyond its borders.",
-        choices: [
-          { text: "Ask about the Sky Shrines", nextStage: 'askSkyShrines' },
-          { text: "Ask about dangers", nextStage: 'askDangers' },
-          { text: "Thank her and rest", nextStage: 'villageHospitality' }
-        ]
-      },
-      'askReturnHome': {
-        text: "Elara's expression turns somber. 'Returning to another world... that is a magic of immense power, child. Legends speak of the Converging Paths, moments when worlds touch, but finding such a path is a quest for a lifetime, if it's possible at all.'",
-        choices: [
-          { text: "Ask more about Converging Paths", nextStage: 'askConvergingPaths' },
-          { text: "Accept this for now and learn more about Aerthos", nextStage: 'askAboutThisWorld' }
-        ]
-      },
-      'villageHospitality': {
-        text: "You are given a warm meal and a place to rest in Oakhaven. The villagers are kind, though curious. You feel safe for the first time since arriving in Aerthos. This could be a good place to learn and plan your next move.",
-        choices: [
-          { text: "End of current demo path. Explore more later!", nextStage: 'endDemoVillage' }
-        ]
-      },
-      'leaveVillagePolitely': {
-        text: "You thank them for their kindness but state you need to keep moving. Elara nods understandingly. 'May your path be safe, traveler.' You leave Oakhaven behind.",
-        choices: [
-          { text: "Return to the forest", nextStage: 'awakeningForest' }
-        ]
-      },
-      'askSkyShrines': {
-        text: "Elara explains, 'The Sky Shrines, like the one you might have seen in the forest, are ancient. Some say they are keys, or gateways, or perhaps anchors between worlds. Their magic is not well understood now, but they hold great power.'",
-        choices: [
-          { text: "Could a shrine help me get back?", nextStage: 'shrineAsReturn' },
-          { text: "Ask about other things", nextStage: 'askAboutThisWorld' }
-        ]
-      },
-      'askDangers': {
-        text: "'The deep woods harbor shadow-beasts, and goblins sometimes raid from the crags. The Whispering Peaks are home to drakes. But the greatest dangers are often unseen, child. Be wary.'",
-        choices: [
-          { text: "Thank her for the warning", nextStage: 'villageHospitality' },
-          { text: "Ask about something else", nextStage: 'askAboutThisWorld' }
-        ]
-      },
-      'askConvergingPaths': {
-        text: "'The Converging Paths are not places, but moments in time, exceedingly rare, when the veil between realities thins. Ancient texts hint at rituals, or powerful artifacts that might predict or force such an event. But it is perilous knowledge.'",
-        choices: [
-          { text: "Vow to seek this knowledge", nextStage: 'vowSeekKnowledge' },
-          { text: "Focus on survival for now", nextStage: 'villageHospitality' }
-        ]
-      },
-      'shrineAsReturn': {
-        text: "Elara considers. 'Perhaps. If one knew how to wield their power. But they can also be perilous. The one in Lumina Forest is mostly dormant, but others... they are not to be trifled with lightly.'",
-        choices: [
-          { text: "Decide to investigate shrines more later", nextStage: 'villageHospitality' },
-          { text: "Ask about something else", nextStage: 'askAboutThisWorld' }
-        ]
-      },
-      'vowSeekKnowledge': {
-        text: "A flicker of determination lights within you. Getting home is your ultimate goal, no matter how difficult. You thank Elara, resolving to learn all you can.",
-        choices: [
-          { text: "Settle in Oakhaven for now", nextStage: 'villageHospitality' }
-        ]
-      },
-      'pathToVillage': {
-        text: "Following the mental map revealed by the token and shrine, you navigate the forest with newfound confidence. Soon, you arrive at the outskirts of Oakhaven village.",
-        choices: [
-          { text: "Approach the village", nextStage: 'approachVillage' }
-        ]
-      },
-      'riverBridge': {
+      'riverBridge': { // Necessary step for Routes 3 & 4
         text: "You reach a rickety wooden bridge spanning the clear river. It looks old but might hold your weight.",
         choices: [
           { text: "Cross the bridge", nextStage: 'crossBridge' },
-          { text: "Look for another way", nextStage: 'findAnotherWayRiver' }
-        ]
-      },
-      'restRiver': {
-        text: "You sit by the river, the gentle sound of water soothing your nerves. You find a few edible-looking berries (not shimmering ones!) and feel slightly refreshed.",
-        choices: [
-          { text: "Continue to the bridge", nextStage: 'riverBridge' }
+          { text: "Look for another way (log)", nextStage: 'findAnotherWayRiver' }
         ]
       },
       'crossBridge': {
@@ -854,10 +769,10 @@
           { text: "Try to go back (risky)", nextStage: 'crossBridgeBacktrackFail' }
         ]
       },
-      'crossBridgeSuccess': {
+      'crossBridgeSuccess': { // Leads to hills for Routes 3 & 4
         text: "With extreme care, you make it to the other side of the river, relieved. The land here seems more open, leading towards rolling hills.",
         choices: [
-          { text: "Explore the rolling hills", nextStage: 'exploreHills' }
+          { text: "Explore the rolling hills", nextStage: 'exploreHills' } // Leads to tower (R3) or continued hills (R4)
         ]
       },
       'crossBridgeBacktrackFail': {
@@ -866,7 +781,6 @@
           showMessage("You fell in the river! Soaked and lost some footing.");
         },
         choices: [
-          { text: "Rest and dry off, then try bridge again", nextStage: 'riverBridge' },
           { text: "Look for another way, definitely", nextStage: 'findAnotherWayRiver' }
         ]
       },
@@ -876,45 +790,264 @@
           { text: "Attempt the log crossing", nextStage: 'logCrossing' }
         ]
       },
-      'logCrossing': {
+      'logCrossing': { // Leads to hills for Routes 3 & 4
         text: "The log is slippery with moss. You inch across, balancing carefully. You make it! You're on the other side, ready to explore the rolling hills.",
         choices: [
-          { text: "Explore the rolling hills", nextStage: 'exploreHills' }
+          { text: "Explore the rolling hills", nextStage: 'exploreHills' } // Leads to tower (R3) or continued hills (R4)
         ]
       },
-      'exploreHills': {
+      'exploreHills': { // Branching point for Routes 3 & 4
         text: "The rolling hills stretch before you, dotted with wildflowers. In the distance, you see what looks like an old, ruined tower on a hilltop.",
         choices: [
-          { text: "Investigate the ruined tower", nextStage: 'ruinedTowerApproach' },
-          { text: "Continue through the hills", nextStage: 'hillsContinue' }
+          { text: "Investigate the ruined tower", nextStage: 'route3_ruinedTowerApproach' }, // Leads to Route 3 start
+          { text: "Continue through the hills", nextStage: 'route4_hillsContinue' } // Leads to Route 4 start
         ]
       },
-      'ruinedTowerApproach': {
-        text: "You make your way to the ruined tower. It's ancient, crumbling stone covered in ivy. The entrance is a dark, gaping hole. A faint, almost inaudible whisper seems to emanate from within.",
+
+      // --- ROUTE 1: The Oakhaven Protector ---
+      'route1_approachOakhaven': {
+        text: "You press north, the faint glow growing steadily brighter. Soon, the trees give way to a breathtaking sight: a small, peaceful village nestled in a gentle valley. Smoke curls lazily from stone chimneys, and the scent of woodsmoke and something sweet fills the air. This is Oakhaven.\n\nAs you reach the outskirts, villagers, dressed in simple, earthy clothes, emerge from their homes, their faces a mix of curiosity and caution. An elderly woman with kind, wise eyes steps forward, a gentle smile gracing her lips.",
         choices: [
-          { text: "Enter the tower", nextStage: 'enterTower' },
-          { text: "Circle the tower exterior", nextStage: 'circleTower' },
-          { text: "Leave it be", nextStage: 'hillsContinue' }
+          { text: "'Hello? I seem to be lost.'", nextStage: 'route1_villageGreetingLost' },
+          { text: "Stay silent and observe them", nextStage: 'route1_villageObserveSilent' }
         ]
       },
-      'enterTower': {
+      'route1_villageGreetingLost': {
+        text: "The old woman's smile widens. 'Lost, are you, child? You don't look to be from around here. Come, tell us your story. You look like you've traveled far.' She seems kind. This is Elara.",
+        choices: [
+          { text: "Explain you're from another world", nextStage: 'route1_explainOtherWorld' },
+          { text: "Say you have amnesia", nextStage: 'route1_claimAmnesia' }
+        ]
+      },
+      'route1_villageObserveSilent': {
+        text: "You remain silent. The villagers exchange uneasy glances. Elara's smile fades slightly. 'Are you alright, dear? Can you speak?'",
+        choices: [
+          { text: "'I... I'm okay. Just startled.'", nextStage: 'route1_villageGreetingLost' }, // Loops back
+          { text: "Run away (Ends Route 1 for now)", nextStage: 'route1_runFromVillage' }
+        ]
+      },
+      'route1_runFromVillage': {
+        text: "You panic, turning and fleeing back into the forest. The villagers shout after you, startled. That probably wasn't the best first impression. You are back near where you woke up.",
+        choices: [
+          { text: "Return to the forest", nextStage: 'awakeningForest' }
+        ]
+      },
+      'route1_explainOtherWorld': {
+        text: "You take a deep breath. 'I... I'm not from here. I don't know how I got here, but my world isn't like this.'\n\nElara's eyes widen slightly, but her smile remains. 'A 'world-walker,' then. We've heard tales. My name is Elara. You are welcome here, though our ways may seem strange to you. Come, rest, and we will talk more.' (This establishes you as a world-walker, some villagers might be wary, but Elara protects you.)",
+        choices: [
+          { text: "Learn about Oakhaven and Aerthos", nextStage: 'route1_learnAboutOakhaven' }
+        ]
+      },
+      'route1_claimAmnesia': {
+        text: "You say, 'I... I'm afraid I don't remember much. I woke up in the forest with no idea how I got there.'\n\nElara's expression softens with sympathy. 'Poor child. A heavy journey, indeed. My name is Elara. You are welcome here. Come, rest, and perhaps with time, your memories will return.' (This gains immediate sympathy, though the truth will eventually come out.)",
+        choices: [
+          { text: "Accept their hospitality and learn about Oakhaven", nextStage: 'route1_learnAboutOakhaven' }
+        ]
+      },
+      'route1_learnAboutOakhaven': {
+        text: "Elara takes you to a warm, cozy hut, offering you a meal of hearty stew and sweet, glowing berries. You share your story, the strangeness of your arrival, and your desire to understand this new world. Elara listens patiently, her gaze knowing. She tells you of Aerthos, this realm, and its connection to other worlds through ancient Sky Shrines, structures that hum with a strange energy. She also speaks of the growing threat of Shadow Beasts, creatures twisted by a creeping darkness from the 'Converging Paths' – places where realms dangerously brush against each other, causing instability. 'You are not just a lost traveler, young one,' she says. 'Perhaps you are here for a purpose.'",
+        choices: [
+          { text: "Settle into Oakhaven life", nextStage: 'route1_settleInOakhaven' }
+        ]
+      },
+      'route1_settleInOakhaven': {
+        text: "You quickly settle into Oakhaven, learning their ways. You spend your days helping with chores, listening to village tales, and observing the unique flora and fauna. One of the villagers who often works near you is Lira, a bright-eyed young woman who tends to the village's small, glowing herb garden. She has an infectious laugh and eyes that sparkle with curiosity.\n\n'So, in your world, you have no glowing moss for light?' she asks one evening, showing you a palm-sized clump of softly pulsating flora. 'And your water flows from pipes, not from the earth?' You find yourself enjoying her company, sharing stories and laughter as you work together in the garden, planting seeds or harvesting shimmering leaves. There's a gentle connection, a quiet understanding that grows between you. You find yourself looking forward to her quiet questions and her bright smiles.",
+        choices: [
+          { text: "Face Oakhaven's first challenge...", nextStage: 'route1_oakhavenChallenge1' }
+        ]
+      },
+      'route1_oakhavenChallenge1': {
+        text: "One morning, a wave of concern sweeps through the village. The crops, usually vibrant and healthy, are wilting, covered in a strange, shimmering black mold. A blight is affecting the village's lifeblood. This is the 'Blight of Whispers.'",
+        choices: [
+          { text: "Investigate the nearby ancient well", nextStage: 'route1_investigateWell' },
+          { text: "Consult Elara for local remedies", nextStage: 'route1_consultElaraBlight' }
+        ]
+      },
+      'route1_investigateWell': {
+        text: "'Locals say it's always provided the purest water,' a farmer tells you, his voice heavy with worry. 'Perhaps something is amiss there? Maybe the water is tainted.' You recall Elara mentioning that water sources were sometimes linked to the land's health.\n\nYou head to the well, a moss-covered stone structure at the edge of the village. The water tastes fine, but as you peer into its depths, you notice a faint, dark current swirling beneath the surface, almost invisible. You carefully scoop some out. Under a magnifying glass (or with your sharpened senses in this world), you see tiny, shimmering spores. This confirms the water is affected.",
+        choices: [
+          { text: "Bring the tainted water sample to Elara", nextStage: 'route1_bringSampleToElara' }
+        ]
+      },
+      'route1_consultElaraBlight': {
+        text: "You find Elara in her hut, surrounded by dried herbs. 'Elara,' you say, 'The crops are dying. What can we do? Is there an Oakhaven remedy?'\n\nElara nods gravely. 'The Blight of Whispers. It emerges when the land's spirit is troubled. There is an old ritual, a cleansing using the 'Tears of Lumina,' dew from the glowing Lumina blossoms. But they only bloom high on Whisperwind Ridge, and the path is often watched by restless spirits.'",
+        choices: [
+          { text: "Consider the options... (Investigating the well seems more direct based on spore discovery)", nextStage: 'route1_investigateWell' } // Guide back to the well investigation as the primary path for this demo branch
+        ]
+      },
+      'route1_bringSampleToElara': {
+        text: "You bring a sample of the tainted water to Elara. Her eyes narrow. 'The Whispering Blight. It's found a way into our pure spring. We must cleanse it quickly, or it will spread to the very roots of our village.' She tasks you with finding a specific type of crystal, a 'Moonpetal Shard,' said to purify tainted water. 'It can be found in the Sunken Glade, but beware, the glade is guarded by the forest's oldest, most reclusive spirits.'\n\nLira, overhearing, insists on joining you. 'I know the forest paths, and I know where the Moonpetal Shards might hide. And I'm not afraid of old spirits... much.' Her presence makes you feel calmer, more determined.",
+        choices: [
+          { text: "Journey with Lira to the Sunken Glade", nextStage: 'route1_journeySunkenGlade' }
+        ]
+      },
+      'route1_journeySunkenGlade': {
+        text: "Together, you journey to the Sunken Glade, a mist-shrouded hollow where ancient trees weep luminescent sap. You encounter ethereal, shimmering figures – the forest spirits. They are not malevolent but test your purity of heart. Lira, with her gentle nature and deep respect for the forest, helps you navigate their challenges, eventually leading you to a clearing where Moonpetal Shards glow faintly from damp earth. You gather them, feeling their cool, cleansing energy.",
+        onEnter: () => {
+          if (!inventory.includes('Moonpetal Shards')) inventory.push('Moonpetal Shards');
+          showMessage("Acquired: Moonpetal Shards!");
+          updateInventoryDisplay();
+        },
+        choices: [
+          { text: "Return to Oakhaven and purify the well", nextStage: 'route1_purifyWell' }
+        ]
+      },
+      'route1_purifyWell': {
+        text: "Upon returning to Oakhaven, you and Lira carefully place the Moonpetal Shards into the well. The dark current dissipates, and a pure, bright light emanates from the water, spreading into the earth. Within days, the blight on the crops begins to recede, and the village breathes a collective sigh of relief.",
+        onEnter: () => {
+          inventory = inventory.filter(item => item !== 'Moonpetal Shards');
+          updateInventoryDisplay();
+        },
+        choices: [
+          { text: "Elara has a new task for you...", nextStage: 'route1_activatedSkyShrine' }
+        ]
+      },
+      'route1_activatedSkyShrine': {
+        text: "Elara approaches you and Lira, her eyes shining with gratitude. 'You have done a great service, young ones. The purification of the well has awakened something. A nearby Sky Shrine, long dormant, hums with renewed energy. It is a sign. Perhaps it has knowledge for you, world-walker, and for all of us.'",
+        choices: [
+          { text: "Journey to the activated Sky Shrine with Lira", nextStage: 'route1_journeySkyShrineOakhaven' }
+        ]
+      },
+      'route1_journeySkyShrineOakhaven': {
+        text: "You and Lira, eager to understand the world's magic and your place in it, journey to the activated Sky Shrine. It stands atop a small hill overlooking the valley, a swirling vortex of light contained within ancient stone pillars. As you touch it, fragmented visions flood your mind: glimpses of your home world, bustling streets, familiar faces, then a jarring shift to images of tearing realities, a growing sense of urgency about the Converging Paths. Lira, standing beside you, feels the resonance, a deep hum that speaks to her of the land's vitality.",
+        choices: [
+          { text: "Understand the road ahead", nextStage: 'route1_pathForward' }
+        ]
+      },
+      'route1_pathForward': {
+        text: "Your path as Oakhaven's protector solidifies. You will embark on quests to activate more Sky Shrines, battle increasingly dangerous Shadow Beasts, and uncover the mystery of the Converging Paths, which Elara believes are a growing threat to Aerthos. With Lira by your side, a steadfast friend and growing confidante, your journey to return home becomes intertwined with protecting this world. Your quiet moments together, sharing discoveries and dreams under the Aerthos stars, become precious.\n\n**Current Goal:** Seek out other Sky Shrines to understand the Converging Paths and find a way home.",
+        choices: [
+          { text: "End of current demo path. Explore more later!", nextStage: 'endDemoVillage' }
+        ]
+      },
+
+      // --- ROUTE 2: The Enigmatic Temple Seeker ---
+      'route2_templePathReveal': {
+        text: "You hold the Carved Token towards the runes on the shrine. It resonates with the shrine's hum, and the runes glow brighter. A single, clear image forms in your mind: a map, showing a path leading from this shrine, not to a simple village, but to a vast, ancient temple shrouded in mist and deep within the densest part of the forest. The temple feels like a place of profound, forgotten power.",
+        onEnter: () => {
+          showMessage("The token reveals a path to a temple!");
+        },
+        choices: [
+          { text: "Follow this mental map to the temple", nextStage: 'route2_arriveAtTemple' } // Direct to Route 2 start
+        ]
+      },
+      'route2_arriveAtTemple': {
+        text: "Following this mental map, you journey for what feels like hours. The forest grows denser, the luminous trees forming a towering canopy that filters the light into ethereal shafts. Finally, through a parting in the ancient foliage, you see it: a colossal structure, overgrown with glowing vines, its stone weathered by ages, radiating a profound sense of forgotten magic. This is the temple.\n\nThe air within is cool and still, filled with a subtle, resonant hum. Cryptic murals adorn the walls, depicting celestial bodies, star charts, and figures performing impossible feats of magic. You're alone, but the hum guides you deeper into the temple's echoing halls.",
+        choices: [
+          { text: "Explore the temple", nextStage: 'route2_templeDiscovery' }
+        ]
+      },
+      'route2_templeDiscovery': {
+        text: "In a chamber filled with softly glowing crystal formations, you discover a Whispering Tome, a book bound in ancient leather whose pages are blank until you focus your intent. It doesn't speak with words, but with images, sensations, and cryptic symbols that coalesce as you concentrate. You also find an Amulet of Resonance, a smooth, cool stone that subtly vibrates when near sources of magical energy, feeling strangely warm in your palm.",
+        onEnter: () => {
+          if (!inventory.includes('Whispering Tome')) inventory.push('Whispering Tome');
+          if (!inventory.includes('Amulet of Resonance')) inventory.push('Amulet of Resonance');
+          showMessage("Acquired: Whispering Tome & Amulet of Resonance!");
+          updateInventoryDisplay();
+        },
+        choices: [
+          { text: "Suddenly, you hear a sound...", nextStage: 'route2_encounterKael' }
+        ]
+      },
+      'route2_encounterKael': {
+        text: "As you are engrossed in the Tome, a rustle of ancient robes breaks the silence. A solitary, agile figure emerges from the shadows. This is Kael, a guardian of the temple, his eyes sharp and wary, his movements silent and precise. He wears simple, dark robes and wields a staff carved from petrified wood.\n\n'Who are you, and how did you find this sacred place?' he demands, his voice low but firm. He initially suspects you are a tomb raider, a desecrator of the temple's forgotten lore.",
+        choices: [
+          { text: "Explain your accidental arrival and show the Carved Token", nextStage: 'route2_explainToKael', condition: () => inventory.includes('Carved Token') },
+          { text: "Try to sneak past him", nextStage: 'route2_sneakPastKael' },
+          { text: "Prepare to fight", nextStage: 'route2_fightKael' }
+        ]
+      },
+      'route2_explainToKael': {
+        text: "You say, 'I didn't mean to intrude. I followed a map from a shrine,' holding up the Carved Token. 'I'm just trying to understand this world.'\n\nKael's gaze falls upon the token, and his stern expression softens, just barely. 'The Sacred Mark,' he murmurs. 'It is a sign of true seeking, not greed. You are... different. A world-walker, perhaps.' He lowers his staff slightly, though his guard remains. 'I am Kael. I guard this temple.'",
+        choices: [
+          { text: "Learn from Kael about the temple", nextStage: 'route2_learnFromKael' }
+        ]
+      },
+      'route2_sneakPastKael': {
+        text: "You attempt to move silently, hoping to avoid confrontation.\n\nKael, with his keen senses, is instantly alert. He blocks your path with a surprising burst of speed. 'Do not disrespect this place with deceit. Speak.'",
+        choices: [
+          { text: "Explain yourself now", nextStage: 'route2_explainToKael', condition: () => inventory.includes('Carved Token') }, // Force explain if possible
+          { text: "Attempt to fight (Risky)", nextStage: 'route2_fightKael' },
+          { text: "Remain silent (Leads to failure)", nextStage: 'route2_failSilenceKael' }
+        ]
+      },
+      'route2_fightKael': {
+        text: "You brace yourself, ready for a conflict.\n\nKael raises his staff, its tip glowing faintly. 'Foolish. This is a place of knowledge, not violence. You will not win.' He easily incapacitates you without serious harm, leaving you disoriented but alive. You have failed to impress the guardian.",
+        choices: [
+          { text: "Try to explain now", nextStage: 'route2_explainToKael', condition: () => inventory.includes('Carved Token') }, // Force explain if possible
+          { text: "Give up (Ends Route 2 for now)", nextStage: 'awakeningForest' }
+        ]
+      },
+      'route2_failSilenceKael': {
+        text: "You remain silent. Kael's expression hardens. 'Very well. If you will not speak, you cannot be here.' He mystically teleports you back outside the temple with a flash of light.",
+        choices: [
+          { text: "Return to the forest", nextStage: 'awakeningForest' }
+        ]
+      },
+      'route2_learnFromKael': {
+        text: "Kael, still wary, but no longer hostile, begins to explain. He is part of an ancient, nearly forgotten order tasked with protecting this temple's secrets, secrets that could unravel the very fabric of Aerthos. He observes you as you examine the Whispering Tome and the Amulet of Resonance. 'These artifacts,' he says, 'are meant for those who seek knowledge, not power. The Tome speaks of the 'Celestial Alignment,' a prophecy tied to preventing a cosmic disaster that threatens to tear this world apart.'\n\nHe is a solitary figure, dedicated to his duty. You find yourself spending hours in the temple, studying the murals with Kael, deciphering the Tome's fragmented visions, and learning to use the Amulet of Resonance to sense the temple's hidden magical conduits. Kael speaks little of his personal feelings, but you sense a quiet respect and a growing camaraderie. He’s intrigued by your presence, by your unique understanding of things foreign to Aerthos, and often asks about your home world. His stoic exterior occasionally cracks with a dry wit, and you find yourself looking forward to his rare, subtle smiles. You also notice the way his eyes linger on the intricate carvings of the Amulet when you hold it, a silent appreciation.",
+        choices: [
+          { text: "Face the temple's first challenge...", nextStage: 'route2_templeChallenge1' }
+        ]
+      },
+      'route2_templeChallenge1': {
+        text: "One of the main energy conduits of the temple, a glowing crystal pillar that channels power to the upper chambers, has dimmed. Kael believes it's being siphoned by a localized distortion caused by the growing instability of the Celestial Alignment, preventing access to deeper, more vital sections of the temple.",
+        choices: [
+          { text: "Attempt to re-align the arcane runes on the pillar (Using Amulet)", nextStage: 'route2_realignPillar' },
+          { text: "Seek an alternate, deeper passage", nextStage: 'route2_findAlternatePassageTemple' }
+        ]
+      },
+      'route2_realignPillar': {
+        text: "Kael mentions that each pillar has ancient runes that can be adjusted. Perhaps your unique energy as a world-walker, combined with the Amulet's power, could help.\n\nYou and Kael carefully examine the pillar. The runes are complex. You place your hand on them, and the Amulet of Resonance hums wildly. You feel a pull, a subtle resistance. With Kael's guidance and your innate connection to inter-world energies, you slowly, painstakingly, adjust the runes. A surge of light erupts from the pillar, and the chamber brightens considerably.",
+        choices: [
+          { text: "A new path opens...", nextStage: 'route2_templeNewPath' }
+        ]
+      },
+      'route2_findAlternatePassageTemple': {
+        text: "You suggest finding another way around the dimmed pillar, maybe through a hidden tunnel or an ancient passage.\n\nKael shakes his head. 'The temple's lower levels are sealed by the pillars' power. Without the conduit, the deeper passages remain inaccessible and dangerous.'",
+        choices: [
+          { text: "Attempt to re-align the arcane runes on the pillar", nextStage: 'route2_realignPillar' } // Guide back to the correct path
+        ]
+      },
+      'route2_templeNewPath': {
+        text: "The pillar flares, its light restoring. You feel a rush of ancient energy as a new path opens, revealing a hidden chamber beyond. Inside, murals depict the 'Confluence of Souls,' a concept suggesting that your journey home is intrinsically linked to the fate of Aerthos itself. The Tome's whispers grow clearer, hinting that the Celestial Alignment, if properly guided, could open a stable path between worlds.",
+        choices: [
+          { text: "Understand the path forward", nextStage: 'route2_pathForward' }
+        ]
+      },
+      'route2_pathForward': {
+        text: "You and Kael become unlikely partners, delving deeper into the temple's secrets, deciphering more of the Whispering Tome, mastering the Amulet of Resonance to locate hidden energy sources across Aerthos, and understanding the Celestial Alignment. Your goal shifts from simply returning home to potentially saving this world first, as the tome now clearly states that one cannot exist without the other. Your quiet moments in the temple, sharing discoveries, and learning about each other's worlds, become treasured.\n\n**Current Goal:** Uncover the secrets of the Celestial Alignment to save Aerthos and find your way home.",
+        choices: [
+          { text: "End of current demo path. Explore more later!", nextStage: 'endGame' } // Using endGame as a generic "reached significant point"
+        ]
+      },
+
+      // --- ROUTE 3: The Coastal Discovery and Sunken Secrets ---
+      'route3_ruinedTowerApproach': {
+        text: "You make your way to the ruined tower. It's ancient, crumbling, its stone worn smooth by centuries of wind and rain. The entrance is a dark, gaping hole. A faint whisper seems to emanate from within.",
+        choices: [
+          { text: "Enter the tower", nextStage: 'route3_enterTower' },
+          { text: "Circle the tower exterior", nextStage: 'route3_circleTower' },
+          { text: "Leave it be", nextStage: 'route4_hillsContinue' } // Option to shift towards Route 4
+        ]
+      },
+      'route3_enterTower': {
         text: "The interior is dark and dusty. Cobwebs hang like ancient curtains. In the center of the circular room, a pedestal stands empty, but an indentation suggests something was once placed there. The whispering sensation is stronger here.",
         choices: [
-          { text: "Examine the pedestal", nextStage: 'examinePedestal' },
-          { text: "Listen to the whispers", nextStage: 'listenWhispers' },
-          { text: "Leave the tower", nextStage: 'exploreHills' }
+          { text: "Examine the pedestal", nextStage: 'route3_examinePedestal' },
+          { text: "Listen to the whispers", nextStage: 'route3_listenWhispers' },
+          { text: "Circle the tower exterior", nextStage: 'route3_circleTower' }, // Can still go outside from inside
+          { text: "Leave the tower", nextStage: 'exploreHills' } // Return to hills choice
         ]
       },
-      'circleTower': {
-        text: "You walk around the tower. Most of it is just crumbling stone, but on the north side, almost hidden by ivy, you find a small, locked wooden chest. It looks very old.",
+      'route3_circleTower': {
+        text: "You walk around the tower, examining its crumbling walls. Hidden behind a thick curtain of ivy, you discover a small, locked stone chest. You manage to pry it open!",
         choices: [
-          { text: "Try to open the chest", nextStage: 'openChest' },
-          { text: "Go inside the tower", nextStage: 'enterTower' },
-          { text: "Leave", nextStage: 'hillsContinue' }
+          { text: "Look inside the chest", nextStage: 'route3_openChest' }
         ]
       },
-      'openChest': {
-        text: "The lock is rusted. You try to force it. With a bit of effort, it snaps open! Inside, you find a tarnished silver locket and a small, leather-bound journal with faded, illegible script.",
+      'route3_openChest': {
+        text: "Inside the chest, you find a tarnished **Silver Locket** (intricately engraved with symbols) and a brittle, **Old Journal**.",
         onEnter: () => {
           if (!inventory.includes('Silver Locket')) inventory.push('Silver Locket');
           if (!inventory.includes('Old Journal')) inventory.push('Old Journal');
@@ -922,164 +1055,341 @@
           updateInventoryDisplay();
         },
         choices: [
-          { text: "Examine the locket", nextStage: 'examineLocket' },
-          { text: "Try to read the journal", nextStage: 'examineJournal' },
-          { text: "Go inside the tower", nextStage: 'enterTower' }
+          { text: "Examine the locket", nextStage: 'route3_examineLocket' },
+          { text: "Try to read the journal", nextStage: 'route3_examineJournal' },
+          { text: "Go inside the tower now", nextStage: 'route3_enterTower' }
         ]
       },
-      'examineLocket': {
-        text: "The silver locket is intricately engraved with swirling patterns. It doesn't open easily. Perhaps it needs a special touch or a key you don't have.",
+      'route3_examineLocket': {
+        text: "The silver locket is intricately engraved with swirling patterns. It doesn't open easily. Perhaps it needs a special touch or a key you don't have. The symbols seem vaguely familiar.",
         choices: [
-          { text: "Try to read the journal", nextStage: 'examineJournal', condition: () => inventory.includes('Old Journal') },
-          { text: "Keep exploring", nextStage: 'enterTower' }
+          { text: "Try to read the journal", nextStage: 'route3_examineJournal', condition: () => inventory.includes('Old Journal') },
+          { text: "Go inside the tower", nextStage: 'route3_enterTower' }
         ]
       },
-      'examineJournal': {
-        text: "The journal's pages are brittle. The ink is faded, and the language is unknown to you. However, on one page, a crudely drawn symbol catches your eye: it's similar to the runes on the forest shrine.",
+      'route3_examineJournal': {
+        text: "The journal's pages are brittle. The ink is faded, but you can make out a few words: '...ancient pact... beneath the waves... the Silver Key...' and a symbol that seems to match the locket's engraving and some runes you saw elsewhere.",
         choices: [
-          { text: "Keep the journal for later", nextStage: 'enterTower' }
+          { text: "Keep the journal for later", nextStage: 'route3_enterTower' }
         ]
       },
-      'examinePedestal': {
+      'route3_examinePedestal': {
         text: "The pedestal has a circular indentation, about the size of a large coin or a small amulet. The whispers seem to emanate from this spot. If you had the 'Silver Locket', it might fit.",
         choices: [
-          { text: "Place Silver Locket on pedestal", nextStage: 'placeLocket', condition: () => inventory.includes('Silver Locket') },
-          { text: "Listen to the whispers", nextStage: 'listenWhispers' },
-          { text: "Leave the tower", nextStage: 'exploreHills' }
+          { text: "Place Silver Locket on pedestal", nextStage: 'route3_placeLocket', condition: () => inventory.includes('Silver Locket') },
+          { text: "Listen to the whispers", nextStage: 'route3_listenWhispers' },
+          { text: "Leave the tower", nextStage: 'exploreHills' } // Return to hills choice
         ]
       },
-      'placeLocket': {
-        text: "You place the Silver Locket into the indentation. It fits perfectly! The whispers intensify, then coalesce into a single, sorrowful voice: 'Freed... or perhaps... awakened... The path to the Sunken City... it begins...'",
+      'route3_placeLocket': {
+        text: "You place the Silver Locket into the indentation. It fits perfectly! The whispers intensify, then coalesce into a clear, resonant voice that echoes in your mind: '*Freed... or perhaps... awakened... The path to the Sunken City... it begins...*'",
         onEnter: () => {
           showMessage("The locket has activated something!");
         },
         choices: [
-          { text: "Ask 'What Sunken City?'", nextStage: 'askSunkenCity' },
-          { text: "Take the locket and leave", nextStage: 'exploreHills' }
+          { text: "Ask 'What Sunken City?'", nextStage: 'route3_askSunkenCity' },
+          // Removed 'Take locket and leave' as it stops the route progression based on the narrative
         ]
       },
-      'askSunkenCity': {
-        text: "The voice fades, but before it vanishes, it imparts a fleeting vision: a city beneath the waves, glowing with an eerie light, and a path leading from a hidden cove along the coast. The locket now hums faintly.",
+      'route3_askSunkenCity': {
+        text: "The voice fades, but before it vanishes, it imparts a fleeting vision: an awe-inspiring underwater city, its grand structures illuminated by bioluminescent algae, and then a clear image of a hidden cove along a dramatic, rocky coastline, a small, almost invisible opening leading into the depths. The locket now hums faintly, establishing a new goal: **Find the coast and this hidden cove.**",
         choices: [
-          { text: "A new goal: Find the coast!", nextStage: 'goalCoast' }
+          { text: "A new goal: Find the coast!", nextStage: 'route3_goalCoast' }
         ]
       },
-      'goalCoast': {
-        text: "The Sunken City... another mystery in this strange world. You resolve to find the coast and this hidden cove. The locket feels important now.",
+      'route3_goalCoast': {
+        text: "You leave the tower, the vision of the Sunken City and the hidden cove burned into your mind. The locket feels warm and important now, a guide. Your next goal is clear: find the coastline.",
         choices: [
-          { text: "Leave the tower and head towards where you think a coast might be", nextStage: 'endDemoTower' }
+          { text: "Head towards where you think the coast might be (South)", nextStage: 'route3_headToCoast' }
         ]
       },
-      'listenWhispers': {
+      'route3_listenWhispers': {
         text: "You focus on the whispers. They are faint, indistinct, like many voices murmuring just beyond hearing. You catch fragments: '...lost...key...sunken...'. It's unsettling and gives you no clear information.",
         choices: [
-          { text: "Examine the pedestal", nextStage: 'examinePedestal' },
-          { text: "Leave the tower", nextStage: 'exploreHills' }
+          { text: "Examine the pedestal", nextStage: 'route3_examinePedestal' },
+          { text: "Leave the tower", nextStage: 'exploreHills' } // Return to hills choice
         ]
       },
-      'hillsContinue': {
-        text: "You decide to leave the tower for now and continue exploring the rolling hills. The landscape is vast. What now?",
+      'route3_headToCoast': {
+        text: "You head south, following the general direction from the tower. After some time, the terrain shifts. The ground becomes sandy, and the air carries the salty tang of the sea. You reach the coastline, a dramatic expanse where a vast ocean stretches to the horizon. There are towering cliffs, sandy beaches, and numerous hidden coves. If the vision from the tower was true, one of these coves holds a secret.",
         choices: [
-          { text: "Search for a road or path", nextStage: 'searchRoadHills' },
-          { text: "Climb the highest hill for a better view", nextStage: 'climbHillView' }
+          { text: "Search for a hidden cove", nextStage: 'route3_searchCove' },
+          { text: "Walk along the beach", nextStage: 'route3_walkBeach' } // Allows finding Conch Shell before searching cove
         ]
       },
-      'searchRoadHills': {
-        text: "After some searching, you find a barely visible dirt track. It seems to lead vaguely south.",
+      'route3_searchCove': {
+        text: "You carefully explore the coastline, walking along the jagged rocks and peering into every shadowy recess. Tucked away behind some massive boulders, you find a narrow opening to a secluded cove. It matches the image from the tower's vision perfectly!",
         choices: [
-          { text: "Follow the track south", nextStage: 'followTrackSouth' }
+          { text: "Enter the hidden cove", nextStage: 'route3_enterHiddenCove' }
         ]
       },
-      'climbHillView': {
-        text: "From the top of the highest hill, you can see for miles. To the west, the forest you came from. To the south, the hills eventually give way to what looks like a coastline. To the east, far, far in the distance, snow-capped mountains pierce the sky.",
-        choices: [
-          { text: "Head towards the coast (south)", nextStage: 'headToCoast' },
-          { text: "Head towards the mountains (east - long journey!)", nextStage: 'headToMountainsLong' }
-        ]
-      },
-      'followTrackSouth': {
-        text: "The dirt track winds south. After an hour of walking, you see the glint of water in the distance. It's the coast!",
-        choices: [
-          { text: "Approach the coastline", nextStage: 'approachCoastline' }
-        ]
-      },
-      'headToCoast': {
-        text: "You decide the coast is your best bet, especially with the tower's vision in mind. You begin the trek south.",
-        choices: [
-          { text: "Arrive at the coastline", nextStage: 'approachCoastline' }
-        ]
-      },
-      'headToMountainsLong': {
-        text: "The mountains are a distant, ambitious goal. The journey will be long and likely perilous. For now, you make a mental note. (Path to mountains is a future adventure!)",
-        choices: [
-          { text: "Focus on something closer, like the coast", nextStage: 'headToCoast' }
-        ]
-      },
-      'approachCoastline': {
-        text: "You reach the coastline. A vast ocean stretches to the horizon. Salty air fills your lungs. There are cliffs, sandy beaches, and hidden coves. If the vision was true, one of these coves holds a secret.",
-        choices: [
-          { text: "Search for a hidden cove", nextStage: 'searchCove' },
-          { text: "Walk along the beach", nextStage: 'walkBeach' }
-        ]
-      },
-      'searchCove': {
-        text: "You carefully explore the coastline, looking for anything unusual. Tucked away behind some jagged rocks, you find a narrow opening to a secluded cove. It matches the fleeting image from the tower's vision!",
-        choices: [
-          { text: "Enter the hidden cove", nextStage: 'enterHiddenCove' }
-        ]
-      },
-      'walkBeach': {
-        text: "You stroll along a sandy beach. Shells crunch underfoot. It's peaceful, but doesn't seem to lead to any specific clues from the tower. You do find a pretty conch shell.",
+      'route3_walkBeach': {
+        text: "You stroll along a sandy beach, the waves lapping at your feet. It's peaceful, but doesn't seem to hold the secret from the tower. You do find a beautiful, spiraling **Conch Shell** washed ashore.",
         onEnter: () => {
           if (!inventory.includes('Conch Shell')) inventory.push('Conch Shell');
           showMessage("Found a Conch Shell!");
           updateInventoryDisplay();
         },
         choices: [
-          { text: "Look for a hidden cove more seriously", nextStage: 'searchCove' }
+          { text: "Now, search for that hidden cove more seriously", nextStage: 'route3_searchCove' }
         ]
       },
-      'enterHiddenCove': {
-        text: "The cove is small and sheltered. At its rear, carved into the cliff face, is an ancient stone doorway, sealed shut. The air here feels heavy with old magic. The Silver Locket in your possession begins to hum louder.",
+      'route3_enterHiddenCove': {
+        text: "The cove is small and enclosed, with a tranquil pool of water. On the cliff face, you see an ancient stone doorway, sealed shut, carved with symbols similar to those on your Silver Locket. The Silver Locket in your possession hums louder, vibrating slightly.",
         choices: [
-          { text: "Examine the stone doorway", nextStage: 'examineCoveDoor' },
-          { text: "Try the Silver Locket on the door", nextStage: 'useLocketOnCoveDoor', condition: () => inventory.includes('Silver Locket') }
+          { text: "Examine the stone doorway", nextStage: 'route3_examineCoveDoor' },
+          { text: "Try the Silver Locket on the door", nextStage: 'route3_useLocketOnCoveDoor', condition: () => inventory.includes('Silver Locket') }
         ]
       },
-      'examineCoveDoor': {
+      'route3_examineCoveDoor': {
         text: "The stone door is massive, covered in barnacles and seaweed. There are strange symbols carved into it, different from the shrine runes but similar in style to the locket's engravings. There's no visible handle or lock mechanism.",
         choices: [
-          { text: "Try the Silver Locket on the door", nextStage: 'useLocketOnCoveDoor', condition: () => inventory.includes('Silver Locket') },
-          { text: "Try to force the door (unlikely)", nextStage: 'forceCoveDoor' }
+          { text: "Try the Silver Locket on the door", nextStage: 'route3_useLocketOnCoveDoor', condition: () => inventory.includes('Silver Locket') },
+          { text: "Try to force the door (unlikely)", nextStage: 'route3_forceCoveDoor' }
         ]
       },
-      'useLocketOnCoveDoor': {
-        text: "You hold the Silver Locket against the door. It clicks into an unseen recess, and the symbols on the door begin to glow with an intense blue light. With a deep groan, the stone door slowly grinds open, revealing a dark passage leading down.",
+      'route3_useLocketOnCoveDoor': {
+        text: "You hold the Silver Locket against the door. It clicks into an unseen recess, and the symbols on the door begin to glow with an intense blue light. With a deep groan, the massive stone door slowly grinds open, revealing a dark, water-filled passage leading down into the depths.",
         choices: [
-          { text: "Enter the passage to the Sunken City", nextStage: 'enterSunkenCityPassage' }
+          { text: "Enter the passage to the Sunken City", nextStage: 'route3_enterSunkenCityPassage' } // Direct to Sunken City
         ]
       },
-      'forceCoveDoor': {
+      'route3_forceCoveDoor': {
         text: "You push and shove, but the massive stone door doesn't budge even a millimeter. It's clearly sealed by more than just its weight.",
         choices: [
-          { text: "Examine the door again", nextStage: 'examineCoveDoor' }
+          { text: "Examine the door again", nextStage: 'route3_examineCoveDoor' }
         ]
       },
-      'enterSunkenCityPassage': {
-        text: "You take a deep breath and step into the darkness. The passage slopes downwards, lit by glowing moss on the walls. The air is cool and damp. The path to the Sunken City awaits... (To be continued!)",
+      'route3_enterSunkenCityPassage': {
+        text: "You take a deep breath and step into the chilling embrace of the water. The locket pulses, urging you forward. This is it. This is the path to the Sunken City.\n\nThe passage leads to an air pocket within the ancient, submerged city. Bioluminescent flora lights your way, revealing crumbling structures and alien beauty. Strange fish with glowing fins dart past. You are in a world beneath the waves. As you cautiously move through a grand, arching hallway, you see another figure.",
         choices: [
-          { text: "Congratulations! End of this adventure branch.", nextStage: 'endGame' }
+          { text: "Encounter the figure", nextStage: 'route3_encounterLyra' }
         ]
       },
+      'route3_encounterLyra': {
+        text: "The figure you see is Lyra, a skilled aquanaut and scholar, her movements fluid in the water, her breath sustained by a clever device. She wears specialized gear that allows her to explore the deepest parts of the ocean. She is immediately drawn to your Silver Locket, her eyes wide with recognition. 'The Sylvan Key,' she whispers, her voice muffled slightly by the water, yet clear. 'It's real. I've read about it in the ancient texts.'\n\nLyra explains that the Sunken City, once known as Aquatoria, was not just a city but a hub of inter-dimensional travel, built by a precursor race. Its core, the Abyssal Heart, is a massive, pulsing crystal that powered their voyages and stabilized the world's energy. However, it's been slowly failing, threatening to destabilize Aerthos itself. She has dedicated her life to studying the ruins, seeking a way to restore the Abyssal Heart. She sees your arrival and the Locket as a sign, a catalyst for her life's work.\n\nYour conversations with Lyra are filled with wonder as she shares her vast knowledge of the ocean's mysteries and the city's history. You admire her dedication and her calm, collected demeanor, even in the face of ancient enigmas. You find yourself looking forward to her explanations, enjoying the quiet moments of shared discovery. She's fascinated by your world, and you are equally fascinated by hers, a silent understanding growing between you two.",
+        choices: [
+          { text: "Face the Sunken City's first challenge...", nextStage: 'route3_sunkenChallenge1' }
+        ]
+      },
+      'route3_sunkenChallenge1': {
+        text: "As you delve deeper with Lyra, you come to a section of the city where strange, shimmering currents have disrupted ancient mechanisms, blocking your path to the Abyssal Heart. These currents are wild, unpredictable, and too strong to swim through directly.",
+        choices: [
+          { text: "Attempt to re-align the ancient conduits (Using Locket)", nextStage: 'route3_realignConduits' },
+          { text: "Find an alternate, more dangerous route", nextStage: 'route3_findAlternateRouteSunken' }
+        ]
+      },
+      'route3_realignConduits': {
+        text: "Lyra knows the schematics of the city's energy flow. She suggests that if you can access and re-align the primary conduits causing the disruption, the currents might stabilize. This would require precise timing and the Locket's energy.\n\nTogether, you and Lyra navigate to a control room filled with complex glowing consoles. With Lyra's deep knowledge of the city's ancient tech and your Locket's unique energy, you work in tandem, placing the locket on a central panel. The currents outside immediately calm, flowing smoothly, revealing a clear path forward.",
+        onEnter: () => {
+          showMessage("The currents have been calmed!");
+        },
+        choices: [
+          { text: "The path ahead is clear...", nextStage: 'route3_pathForward' }
+        ]
+      },
+      'route3_findAlternateRouteSunken': {
+        text: "You suggest looking for a hidden passage or a crumbling section of wall that might allow you to bypass the currents entirely, even if it means risking unknown hazards.\n\nLyra shakes her head. 'The ancient city is designed to protect its core. Any other path would be filled with dormant guardians or unstable structures. Too risky for now.'",
+        choices: [
+          { text: "Attempt to re-align the ancient conduits instead", nextStage: 'route3_realignConduits' } // Guide back
+        ]
+      },
+      'route3_pathForward': {
+        text: "Your adventure dives deep into the Sunken City, deciphering ancient texts inscribed on glowing tablets, restoring lost technologies, and navigating the dangers of the deep. Your bond with Lyra strengthens as you work together, her expertise complementing your unique abilities, striving to unlock the secrets of the Abyssal Heart. This knowledge, she believes, holds the key not only to saving Aerthos from collapse but also to understanding the true nature of inter-dimensional travel, and perhaps, a way for you to return home. Your quiet moments in the bioluminescent glow of the city, sharing dreams and theories, are moments you cherish.\n\n**Current Goal:** Reach the Abyssal Heart and uncover the secrets of the Sunken City.",
+        choices: [
+          { text: "Congratulations! End of this adventure branch.", nextStage: 'endGame' } // Using endGame as a generic "reached significant point"
+        ]
+      },
+
+      // --- ROUTE 4: The Nomadic Heartlands ---
+      'route4_hillsContinue': {
+        text: "You decide to leave the tower for now and continue exploring the rolling hills. The landscape is vast. What now?",
+        choices: [
+          { text: "Search for a road or path", nextStage: 'route4_searchRoadHills' },
+          { text: "Climb the highest hill for a better view", nextStage: 'route4_climbHillView' } // Leads to spotting nomads directly
+        ]
+      },
+      'route4_searchRoadHills': {
+        text: "After some searching, you find a barely visible dirt track. It seems to lead vaguely south.",
+        choices: [
+          { text: "Follow the track south", nextStage: 'route4_followTrackSouth' }
+        ]
+      },
+      'route4_climbHillView': {
+        text: "You exert yourself, climbing the tallest hill you can find. From its summit, you get a panoramic view: the forest to the north, the glint of the coast to the south, and distant, snow-capped mountains to the east. You also notice plumes of smoke rising from a cluster of colorful tents far to the west – a nomadic encampment!",
+        choices: [
+          { text: "Head towards the nomadic encampment (West)", nextStage: 'route4_headTowardsNomads' }
+        ]
+      },
+      'route4_followTrackSouth': { // Placeholder, ideally leads to coast/R3 eventually, but will redirect to nomads for this branch
+        text: "The dirt track winds south. After an hour of walking, you see the glint of water in the distance. It's the coast! But from the map you saw from the hill (or just a feeling), you recall seeing signs of life to the west.",
+        choices: [
+          { text: "Decide to head west towards potential signs of life", nextStage: 'route4_headTowardsNomads' }
+        ]
+      },
+      'route4_headTowardsNomads': {
+        text: "You make your way towards the smoke, a sense of hope blooming in your chest. As you approach, you see a collection of colorful tents, woven from natural fibers, some glowing softly with captured starlight. This is the camp of the Aeridian Nomads, a resilient, earth-connected people.",
+        choices: [
+          { text: "Approach the camp", nextStage: 'route4_approachNomadCamp' }
+        ]
+      },
+      'route4_approachNomadCamp': {
+        text: "As you draw closer, figures emerge from the tents. You are met by Roric, the stern but fair leader of this nomadic band, his face weathered by sun and wind. Beside him, observing you with keen, intelligent eyes, is his daughter, Elara (not to be confused with the Oakhaven elder). She is a spirited young woman, skilled in hunting and tracking, her dark braids adorned with small feathers. She's initially wary of you, a stranger, but her curiosity quickly wins out.\n\n'Who are you, stranger, and what brings you to our lands?' Roric asks, his voice deep.",
+        choices: [
+          { text: "'I am lost. I come from another world.'", nextStage: 'route4_explainToNomads' },
+          { text: "'I am a traveler, seeking knowledge.'", nextStage: 'route4_ambiguousNomad' },
+          { text: "Remain silent, observing them", nextStage: 'route4_silentNomad' }
+        ]
+      },
+      'route4_explainToNomads': {
+        text: "You explain your strange arrival, the portal, and your disorientation.\n\nRoric's eyes narrow, but Elara's interest is piqued. 'Another world? We have heard the old tales. The Sky-Walkers. Welcome, then, though your path is strange. You may share our fire for a time.' Elara steps forward, a glimmer of excitement in her eyes. 'Tell me of your world. Are your animals so different?'",
+        choices: [
+          { text: "Settle in and learn about the nomads", nextStage: 'route4_settleWithNomads' }
+        ]
+      },
+      'route4_ambiguousNomad': {
+        text: "You choose a more ambiguous answer, hoping to gain their trust first.\n\nRoric eyes you skeptically. 'Knowledge is earned on these plains, stranger. What knowledge do you seek?'",
+        choices: [
+          { text: "Explain you are from another world now", nextStage: 'route4_explainToNomads' }, // Guide back to the correct path
+          { text: "Remain silent (Leads to failure)", nextStage: 'route4_silentNomad' }
+        ]
+      },
+      'route4_silentNomad': {
+        text: "You remain silent, trying to gauge their intentions.\n\nRoric sighs. 'If you cannot speak, then you cannot be among us. We have no room for silent shadows.' They respectfully but firmly escort you away from the camp.",
+        choices: [
+          { text: "Return to the hills, alone", nextStage: 'exploreHills' } // Return to hills choice
+        ]
+      },
+      'route4_settleWithNomads': {
+        text: "You are cautiously welcomed into the Aeridian Nomads' camp. You quickly learn about their way of life: their reverence for the land, their intricate hunting practices, and their deep connection to the Standing Stones, ancient monoliths scattered across the plains that act as guides and repositories of their ancestral lore. The nomads migrate between these stones, performing rituals that keep their traditions alive and the land vibrant.\n\nAs you participate in daily life – helping with hunts, setting up camp, learning their language – you find yourself spending more and more time with Elara. Under the vast, star-dusted plains sky, you share tales of your world – its towering cities, strange vehicles, and endless information. She's captivated, asking endless questions. You, in turn, are drawn to her grounded wisdom, her fierce spirit, and her deep understanding of the natural world. She teaches you how to read the land, how to track, and how to survive in the wild, her patience unwavering. You admire her quiet determination and her easy laughter. You find yourself looking forward to her presence, a warmth spreading through you when she smiles.\n\nThere's a subtle admiration that grows between you, a shared sense of wonder at each other's worlds. You share meals by the campfire, talking late into the night, learning about the intricacies of their culture and the myths of Aerthos.",
+        choices: [
+          { text: "Face the nomads' first challenge...", nextStage: 'route4_nomadChallenge1' }
+        ]
+      },
+      'route4_nomadChallenge1': {
+        text: "One evening, Roric calls a tribal meeting. The nomads are preparing for a crucial 'Rite of Echoes' at a nearby Standing Stone, a ritual vital for the health of their herds and the success of their next migration. However, a key component – a rare, luminescent moss called 'Star-Glow' – has gone missing from their sacred pouch. Without it, the ritual cannot be performed.",
+        choices: [
+          { text: "Track the missing moss (Using Elara's lessons)", nextStage: 'route4_trackStarGlow' },
+          { text: "Consult the tribal elder, Kael (different Kael!)", nextStage: 'route4_consultElderNomad' }
+        ]
+      },
+      'route4_trackStarGlow': {
+        text: "You remember Elara's lessons on tracking. 'I'll try to follow its trail,' you offer. 'Something might have taken it.'\n\nYou and Elara set out. Using your newfound tracking skills, you follow faint disturbances in the grass. The trail leads you to a curious, burrowing creature that had simply mistaken the Star-Glow pouch for a particularly shiny rock to add to its collection. You retrieve the moss, unharmed.",
+        onEnter: () => {
+          if (!inventory.includes('Star-Glow Moss')) inventory.push('Star-Glow Moss');
+          showMessage("Found the Star-Glow Moss!");
+          updateInventoryDisplay();
+        },
+        choices: [
+          { text: "Return to the camp with the moss", nextStage: 'route4_returnWithMoss' }
+        ]
+      },
+      'route4_consultElderNomad': {
+        text: "You suggest asking the elder. Kael, the oldest and wisest of the nomadic elders, listens patiently. 'The Star-Glow is unique. There is no true substitute. However, if its theft was accidental, perhaps a specific hunting ground or a spirit's den could reveal its whereabouts. We must look to the land itself.' He indicates tracking is the way.",
+        choices: [
+          { text: "Track the missing moss", nextStage: 'route4_trackStarGlow' } // Guide back
+        ]
+      },
+      'route4_returnWithMoss': {
+        text: "You return triumphantly with the Star-Glow moss. The tribe rejoices, and the Rite of Echoes is performed under the vast, star-filled sky. As the nomads chant and dance around the Standing Stone, you feel a deep resonance, a sense of ancient power that feels strangely familiar, hinting at connections beyond this world.",
+        onEnter: () => {
+          inventory = inventory.filter(item => item !== 'Star-Glow Moss');
+          updateInventoryDisplay();
+        },
+        choices: [
+          { text: "Understand the path forward", nextStage: 'route4_pathForward' }
+        ]
+      },
+      'route4_pathForward': {
+        text: "You become an integral part of the nomadic tribe, traveling with them across the endless plains. You delve deeper into the lore of the Standing Stones, discovering that they are not just cultural markers but conduits of energy, capable of influencing the 'Weave of Realms' – the invisible tapestry connecting Aerthos to other dimensions. Elara, your steadfast companion, shares your drive to understand these mysteries. Your bond with her deepens as you face the challenges of the wild together, seeking answers that may lead you home, intricately intertwined with the destiny of the Aeridian Nomads and the balance of their world. Your shared journey under the open sky fills you with a quiet joy.\n\n**Current Goal:** Unravel the secrets of the Standing Stones and the Weave of Realms to find a path home.",
+        choices: [
+          { text: "End of current demo path. Explore more later!", nextStage: 'endGame' } // Using endGame
+        ]
+      },
+
+      // --- ROUTE 5: The Subterranean Unveiling ---
+      'route5_fallIntoCrevice': {
+        text: "You fall, tumbling down into a dark, echoing void. You brace for impact, but instead, you land on a bed of surprisingly soft, glowing crystals. Disoriented, you look around. You've fallen into the Crystal Caves.",
+        choices: [
+          { text: "Awaken in the Crystal Caves", nextStage: 'route5_awakeningCaves' } // Direct to start of Route 5
+        ]
+      },
+      'route5_awakeningCaves': {
+        text: "This new world below is breathtaking: massive caverns stretch into the darkness, illuminated by bioluminescent fungi that cling to the walls and ceiling, casting an ethereal, shifting glow. Veins of raw, shimmering magic pulse visibly within the cavern walls, vibrating with an unseen energy. Strange, echoing sounds hint at life unseen in the vastness.\n\nYou are deep underground, disoriented but mesmerized. The air is cool and damp. As you cautiously explore, picking your way through glowing stalagmites and shimmering pools, you hear faint whispers, not words, but a sensation of movement.",
+        choices: [
+          { text: "Explore cautiously", nextStage: 'route5_exploreCaves' }
+        ]
+      },
+      'route5_exploreCaves': {
+        text: "As you venture deeper, you encounter a small community of Glimmerfolk, subterranean beings with translucent, almost crystal-like skin that subtly glows, and large, luminous eyes adapted to the eternal twilight. They are shy and initially fearful of you, a 'surface dweller,' retreating into crevices at your approach.\n\nHowever, one of them, a curiously brave and empathetic young Glimmerfolk names Rin, approaches you cautiously. Rin is smaller than the others, their luminous eyes wide with a mixture of apprehension and wonder. They gesture towards your hand, fascinated by your skin.\n\n'Who... who are you?' Rin's voice is soft, like the rustling of crystal leaves. 'You... you feel different. From the above.'",
+        choices: [
+          { text: "'I am lost. I fell here from another world.'", nextStage: 'route5_explainToGlimmerfolk' },
+          { text: "Try to grab Rin to get answers", nextStage: 'route5_grabRinFail' },
+          { text: "Remain silent, trying to observe", nextStage: 'route5_silentGlimmerfolk' }
+        ]
+      },
+      'route5_explainToGlimmerfolk': {
+        text: "You explain your strange arrival, the sudden fall, and your confusion.\n\nRin's eyes widen. 'Another world? The legends... you are a 'Sky-Born.' This place, it draws you. These caves... they are a nexus.' Rin gestures to the glowing veins in the walls. 'Of 'World-Crossing Energies.'' Rin, though quiet, possesses a deep scientific curiosity about the surface world and its inhabitants. They seem to understand you better than you expect.",
+        choices: [
+          { text: "Learn about the Crystal Caves from Rin", nextStage: 'route5_learnAboutCaves' }
+        ]
+      },
+      'route5_grabRinFail': {
+        text: "You reach out, hoping to get their attention more directly.\n\nRin recoils instantly, their body flickering with fear. The other Glimmerfolk disappear deeper into the shadows. 'No! Do not touch!' You have scared them away.",
+        choices: [
+          { text: "Regroup and try again (You can try explaining now)", nextStage: 'route5_explainToGlimmerfolk' } // Guide back to explanation path
+        ]
+      },
+      'route5_silentGlimmerfolk': {
+        text: "You stay still, trying to understand their language and customs.\n\nRin waits patiently for a moment, then, seeing your silence, they simply gesture for you to follow, still hesitant. Their luminous eyes convey cautious curiosity.",
+        choices: [
+          { text: "Follow Rin", nextStage: 'route5_learnAboutCaves' } // Leads to the same path but with initial mistrust
+        ]
+      },
+      'route5_learnAboutCaves': {
+        text: "Rin explains that the Crystal Caves are a nexus of 'World-Crossing Energies,' a network that naturally draws and sometimes strands beings from other realms. The Glimmerfolk are sensitive to these energies and have a unique understanding of the cave's secrets, though their knowledge is primarily empirical, passed down through generations. Rin explains that the caves sometimes experience 'surges' of these energies, which can disrupt their delicate ecosystem.\n\nYou spend time with the Glimmerfolk, learning about their unique way of life. You explain the surface world to Rin – the sun, the sky, the vastness of the outside – and they listen with rapt attention, their luminous eyes shining with wonder. You are equally fascinated by their deep understanding of the bioluminescent fungi forests, the strange, gentle creatures that inhabit the caves, and their connection to the pulsing magic around them. You find yourself enjoying Rin's quiet presence and their eager, thoughtful questions, finding a quiet comfort in their unique perspective. You notice the way Rin's translucent hand often reaches out to touch the glowing crystals, as if communicating with them.",
+        choices: [
+          { text: "Face the Glimmerfolk's first obstacle...", nextStage: 'route5_caveChallenge1' }
+        ]
+      },
+      'route5_caveChallenge1': {
+        text: "The Glimmerfolk's main source of sustenance, a grove of nourishing light-moss that glows with soft, vital energy, is beginning to dim. Rin explains that a parasitic root-creature, drawn by a recent energy surge, has attached itself, slowly draining the moss's life. If the moss dies, their community will starve.",
+        choices: [
+          { text: "Attempt to sever the parasitic root", nextStage: 'route5_severParasiticRoot' },
+          { text: "Find a way to boost the light-moss's energy", nextStage: 'route5_boostMossEnergy' }
+        ]
+      },
+      'route5_severParasiticRoot': {
+        text: "You examine the root-creature with Rin. It seems vulnerable where it attaches. You suggest physically cutting it away, perhaps with a sharp shard of crystal.\n\nRin leads you to the affected grove. The root-creature writhes slightly. With a sharp crystal shard you find, you carefully cut the parasitic root. It shrivels, and the light-moss immediately begins to glow brighter, pulsing with renewed vigor.",
+        onEnter: () => {
+          showMessage("The light-moss is saved!");
+        },
+        choices: [
+          { text: "Rin has something to show you...", nextStage: 'route5_crystalChamber' }
+        ]
+      },
+      'route5_boostMossEnergy': {
+        text: "You wonder if there's a specific crystal or energy conduit nearby that could revitalize the moss from the outside, overriding the parasitic drain.\n\nRin shakes their head. 'The root draws the life. Boosting the moss would only feed the parasite more. We must remove it at its source.'",
+        choices: [
+          { text: "Attempt to sever the parasitic root instead", nextStage: 'route5_severParasiticRoot' } // Guide back
+        ]
+      },
+      'route5_crystalChamber': {
+        text: "The light-moss grove pulses with renewed vigor, restoring the Glimmerfolk's food supply. Rin's luminous eyes shine with gratitude. 'You are truly Sky-Born,' they whisper. 'You have brought light where there was darkness.' They then lead you to a hidden chamber, pulsing with even stronger World-Crossing Energies. 'This place,' Rin says, 'is where the threads are thinnest. We believe if these energies are understood, they can be controlled. Perhaps... even directed.'",
+        choices: [
+          { text: "Understand the path forward", nextStage: 'route5_pathForward' }
+        ]
+      },
+      'route5_pathForward': {
+        text: "You embark on a perilous but wondrous journey through the labyrinthine Crystal Caves, helping the Glimmerfolk understand and eventually harness the World-Crossing Energies. Your bond with Rin deepens as you explore together, facing unique subterranean creatures and deciphering the cave's magical properties. Your conversations are quiet, filled with mutual respect and a shared sense of wonder. You discover that these energies, if properly managed, could create a stable portal back to your world. Your goal becomes finding a way to stabilize these energies, which might be the key to both saving this hidden world and finding your way back home. Your quiet moments with Rin, discussing the mysteries of the caves and your respective worlds, are something you wouldn't trade for anything.\n\n**Current Goal:** Understand and control the World-Crossing Energies to save the Crystal Caves and find a path home.",
+        choices: [
+          { text: "End of current demo path. Explore more later!", nextStage: 'endGame' } // Using endGame
+        ]
+      },
+
       // --- End States ---
       'endDemoVillage': {
         text: "Your adventure in Oakhaven is just beginning. There's much to explore and learn. Thanks for playing this demo branch!",
-        choices: [
-          { text: "Play Again?", nextStage: 'start' }
-        ]
-      },
-      'endDemoTower': {
-        text: "With the locket's guidance, a new path towards the coast and the Sunken City has opened. The mysteries of Aerthos deepen! Thanks for playing this demo branch!",
         choices: [
           { text: "Play Again?", nextStage: 'start' }
         ]
