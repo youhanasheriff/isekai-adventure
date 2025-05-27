@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Isekai Adventure</title>
+  <title>Another Realm | Isekai Adventure</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=MedievalSharp&display=swap"
     rel="stylesheet">
@@ -122,6 +122,33 @@
       }
     }
 
+    /* Dynamic image container styles */
+    .story-image-container {
+      margin-bottom: 1.5rem;
+      height: 250px;
+      overflow: hidden;
+      border-radius: 0.75rem;
+      position: relative;
+      background: rgba(0, 0, 0, 0.3);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .story-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 0.75rem;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+      opacity: 0;
+      transform: scale(1.05);
+    }
+
+    .story-image.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
     .story-text {
       font-family: 'MedievalSharp', cursive;
       font-size: 1.25rem;
@@ -194,6 +221,71 @@
 
     .choices-container button:active {
       transform: translateY(0);
+    }
+
+    /* Map button styles */
+    .map-button {
+      background: linear-gradient(135deg, #48bb78 0%, #38a169 100%) !important;
+      margin-top: 1rem;
+    }
+
+    /* Map modal styles */
+    .map-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .map-modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .map-content {
+      position: relative;
+      max-width: 90%;
+      max-height: 90%;
+      transform: scale(0.9);
+      transition: transform 0.3s ease;
+    }
+
+    .map-modal.active .map-content {
+      transform: scale(1);
+    }
+
+    .map-image {
+      width: 100%;
+      height: auto;
+      border-radius: 0.75rem;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .close-map {
+      position: absolute;
+      top: -40px;
+      right: 0;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s ease;
+    }
+
+    .close-map:hover {
+      background: rgba(255, 255, 255, 0.2);
     }
 
     .message-box {
@@ -286,6 +378,10 @@
         margin-bottom: 1rem;
         max-width: 100%;
       }
+
+      .story-image-container {
+        height: 200px;
+      }
     }
   </style>
 </head>
@@ -296,6 +392,14 @@
 
   <div id="messageBox" class="message-box"></div>
 
+  <!-- Map Modal -->
+  <div id="mapModal" class="map-modal">
+    <div class="map-content">
+      <button class="close-map" onclick="closeMap()">Close Map</button>
+      <img src="map.png" alt="World Map" class="map-image">
+    </div>
+  </div>
+
   <div class="game-container">
     <div class="inventory-display" id="inventoryDisplay">
       <div class="inventory-title">Inventory</div>
@@ -303,6 +407,12 @@
     </div>
 
     <h1 class="header-title">Another Realm</h1>
+
+    <!-- Dynamic Image Container -->
+    <div class="story-image-container">
+      <img id="storyImage" class="story-image" src="" alt="Story Scene">
+    </div>
+
     <div id="story" class="story-text">
       <div class="loading-spinner"></div> Loading your destiny...
     </div>
@@ -328,6 +438,65 @@
     // --- Game State and Story Data ---
     let currentStage = 'start';
     let inventory = [];
+
+    // Image mapping for story stages
+    const stageImageMap = {
+      // Forest scenes
+      'awakeningForest': 'awaken-on-forest.png',
+      'examineForest': 'awaken-on-forest.png',
+      'examineForestPostFruit': 'awaken-on-forest.png',
+      'takeFruit': 'awaken-on-forest.png',
+      'eatFruit': 'awaken-on-forest.png',
+      'shoutForHelp': 'awaken-on-forest.png',
+      'investigateRustling': 'awaken-on-forest.png',
+      'observeRustling': 'awaken-on-forest.png',
+      'takeToken': 'awaken-on-forest.png',
+      'seekCivilization': 'awaken-on-forest.png',
+
+      // Shrine scenes
+      'followPath': 'ancient-shrine.png',
+      'touchShrine': 'ancient-shrine.png',
+      'examineRunes': 'ancient-shrine.png',
+      'useTokenOnRunes': 'ancient-shrine.png',
+      'decipherFail': 'ancient-shrine.png',
+      'ponderVision': 'ancient-shrine.png',
+      'mountainGoal': 'ancient-shrine.png',
+
+      // Village scenes
+      'northPath': 'oakhaven-village.png',
+      'approachVillage': 'oakhaven-village.png',
+      'observeVillage': 'oakhaven-village.png',
+      'villageBypassAttempt': 'oakhaven-village.png',
+      'villageGreetingLost': 'oakhaven-village.png',
+      'villageObserveSilent': 'oakhaven-village.png',
+      'explainOtherWorld': 'oakhaven-village.png',
+      'claimAmnesia': 'oakhaven-village.png',
+      'askAboutThisWorld': 'oakhaven-village.png',
+      'askReturnHome': 'oakhaven-village.png',
+      'villageHospitality': 'oakhaven-village.png',
+      'leaveVillagePolitely': 'oakhaven-village.png',
+      'askSkyShrines': 'oakhaven-village.png',
+      'askDangers': 'oakhaven-village.png',
+      'askConvergingPaths': 'oakhaven-village.png',
+      'shrineAsReturn': 'oakhaven-village.png',
+      'vowSeekKnowledge': 'oakhaven-village.png',
+      'pathToVillage': 'oakhaven-village.png',
+
+      // Tower scenes
+      'ruinedTowerApproach': 'ruined-tower.png',
+      'enterTower': 'ruined-tower.png',
+      'circleTower': 'ruined-tower.png',
+      'openChest': 'ruined-tower.png',
+      'examineLocket': 'ruined-tower.png',
+      'examineJournal': 'ruined-tower.png',
+      'examinePedestal': 'ruined-tower.png',
+      'placeLocket': 'ruined-tower.png',
+      'askSunkenCity': 'ruined-tower.png',
+      'listenWhispers': 'ruined-tower.png',
+
+      // Default to map for other scenes or no image
+      'default': 'map.png'
+    };
 
     const storyTree = {
       'start': {
@@ -928,6 +1097,8 @@
     const choicesElement = document.getElementById('choices');
     const messageBox = document.getElementById('messageBox');
     const inventoryList = document.getElementById('inventoryList');
+    const storyImage = document.getElementById('storyImage');
+    const mapModal = document.getElementById('mapModal');
 
     // --- Game Logic ---
     function showMessage(message, duration = 3000) {
@@ -948,6 +1119,35 @@
       }
     }
 
+    function updateStoryImage(stageKey) {
+      const imagePath = stageImageMap[stageKey] || stageImageMap['default'];
+
+      // Hide image first for smooth transition
+      storyImage.classList.remove('visible');
+
+      setTimeout(() => {
+        storyImage.src = imagePath;
+        storyImage.onload = () => {
+          storyImage.classList.add('visible');
+        };
+      }, 300);
+    }
+
+    function showMap() {
+      mapModal.classList.add('active');
+    }
+
+    function closeMap() {
+      mapModal.classList.remove('active');
+    }
+
+    // Close map when clicking outside
+    mapModal.addEventListener('click', (e) => {
+      if (e.target === mapModal) {
+        closeMap();
+      }
+    });
+
     function displayStage(stageKey) {
       const stage = storyTree[stageKey];
       if (!stage) {
@@ -956,6 +1156,9 @@
         choicesElement.innerHTML = '<button onclick="startGame()">Restart Adventure</button>';
         return;
       }
+
+      // Update the story image
+      updateStoryImage(stageKey);
 
       // Execute any onEnter function for the stage
       if (stage.onEnter && typeof stage.onEnter === 'function') {
@@ -987,6 +1190,16 @@
             choicesElement.appendChild(button);
           }
         });
+
+        // Add Map button
+        const mapButton = document.createElement('button');
+        mapButton.textContent = 'View Map';
+        mapButton.className = 'map-button';
+        mapButton.style.animationDelay = `${stage.choices.length * 0.1}s`;
+        mapButton.style.animation = 'fadeIn 0.5s ease-out forwards';
+        mapButton.style.opacity = '0';
+        mapButton.onclick = showMap;
+        choicesElement.appendChild(mapButton);
       } else {
         // If no choices, it might be an end state or an error
         const endButton = document.createElement('button');
